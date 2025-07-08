@@ -1,4 +1,18 @@
 services:
+  load-balancer:
+    image: nginx:latest
+    ports:
+      - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "15MB"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - backend
+
   bun-payments-worker-1:
     build:
       dockerfile: ./Dockerfile
