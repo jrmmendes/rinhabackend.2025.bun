@@ -13,7 +13,7 @@ services:
     networks:
       - backend
 
-  bun-payments-worker-1:
+  c1.payments.api:
     build:
       dockerfile: ./Dockerfile
     deploy:
