@@ -39,5 +39,4 @@ networks:
     driver: bridge
   payment-processor:
     name: payment-processor
-    driver: bridge
-
+    external: true

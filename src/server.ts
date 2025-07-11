@@ -1,10 +1,4 @@
-Bun.serve({
-  port: 9999,
-  routes: {
-    "/payments": new Response("Not implemented", { status: 501 }),
-    "/payments-summary": new Response("Not implemented", { status: 501 }),
-    "/health-check": new Response("Not implemented", { status: 501 })
-  }
-});
+import { bootstrap } from "./bootstrap";
 
-console.log('server started')
+const application = bootstrap();
+application.listen();
