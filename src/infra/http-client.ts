@@ -17,17 +17,21 @@ export class HttpClient {
   }
 
   async post<TData= unknown, TBody = undefined>(path: string, body?: TBody): Promise<[status: number, data: TData, error: boolean]> {
-    console.log('HttpClient > post request to %s with body: %s', path, JSON.stringify(body))
     const url = ''.concat(this.config.baseUrl).concat(path)
     const payload = {
       method: 'post',
       body: JSON.stringify(body),
       headers: {
+        'content-type': 'application/json',
         ...this.config.headers,
       }
     }
 
+    console.log('HttpClient > post request to %s with body: %s', url, JSON.stringify(body))
+
     const response = await fetch(url, payload)
+
+    console.log('HttpClient > response for request to %s: %s', url, response.status)
 
     return [ 
       response.status,
