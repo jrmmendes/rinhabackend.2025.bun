@@ -1,9 +1,16 @@
 import { env } from "./infra/env";
+import { HttpClient } from "./infra/http-client";
 import { validate } from "./infra/validate";
-import { create } from "./routes/payments.route";
+import { createPaymentsHandler } from "./routes/payments.route";
 import { CreatePaymentsInputSchema } from "./schemas/create-payments.schema";
 
 export const bootstrap = () => {
+  const httpClient = new HttpClient({
+    baseUrl: env.paymentsServiceUrl.default,
+  });
+
+  httpClient.isHealth("/payments");
+  setInterval(() => httpClient.isHealth("/payments"), 5 * 1000);
 
   return {
     listen: () => {
@@ -11,16 +18,16 @@ export const bootstrap = () => {
       const server = Bun.serve({
         port: env.port,
         routes: {
-          '/payments':{
+          "/payments": {
             POST: async (req: Bun.BunRequest) => {
               const payload = await req.json();
               const [input] = validate(payload, CreatePaymentsInputSchema);
               if (!input) {
-                return new Response("Bad request", { status: 400 })
+                return new Response("Bad request", { status: 400 });
               }
-              return create(input);
-            } 
-          }
+              return createPaymentsHandler({ client: httpClient })(input);
+            },
+          },
         },
       });
 

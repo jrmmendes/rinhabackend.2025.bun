@@ -1,8 +1,8 @@
 type HttpClientConfig = {
   baseUrl: string;
   headers: Record<string, string>;
-  validateStatus: (status: number) => boolean, 
-}
+  validateStatus: (status: number) => boolean;
+};
 
 export class HttpClient {
   config: HttpClientConfig;
@@ -10,33 +10,72 @@ export class HttpClient {
   constructor(config: Partial<HttpClientConfig> = {}) {
     this.config = {
       validateStatus: (status) => status > 0 && status <= 399,
-      baseUrl: '', 
+      baseUrl: "",
       headers: {},
-      ...config
+      ...config,
     };
   }
 
-  async post<TData= unknown, TBody = undefined>(path: string, body?: TBody): Promise<[status: number, data: TData, error: boolean]> {
-    const url = ''.concat(this.config.baseUrl).concat(path)
+  async isHealth(path: string) {
+    const url = ""
+      .concat(this.config.baseUrl)
+      .concat(path)
+      .concat("/service-health");
     const payload = {
-      method: 'post',
+      method: "get",
+      headers: {
+        ...this.config.headers,
+      },
+    };
+
+    console.log(
+      "HttpClient > running health check for %s",
+      this.config.baseUrl.concat(path),
+    );
+
+    fetch(url, payload).then((response) => {
+      response.text().then((text) => {
+        console.log(
+          "HttpClient > check result: %s - %s",
+          response.status,
+          text,
+        );
+      });
+    });
+  }
+
+  async post<TData = unknown, TBody = undefined>(
+    path: string,
+    body?: TBody,
+  ): Promise<[status: number, data: TData, error: boolean]> {
+    const url = "".concat(this.config.baseUrl).concat(path);
+    const payload = {
+      method: "post",
       body: JSON.stringify(body),
       headers: {
-        'content-type': 'application/json',
+        "content-type": "application/json",
         ...this.config.headers,
-      }
-    }
+      },
+    };
 
-    console.log('HttpClient > post request to %s with body: %s', url, JSON.stringify(body))
+    console.log(
+      "HttpClient > post request to %s with body: %s",
+      url,
+      JSON.stringify(body),
+    );
 
-    const response = await fetch(url, payload)
+    const response = await fetch(url, payload);
 
-    console.log('HttpClient > response for request to %s: %s', url, response.status)
-
-    return [ 
+    console.log(
+      "HttpClient > response for request to %s: %s",
+      url,
       response.status,
-      await response.json() as TData,
-      this.config.validateStatus(response.status)
-    ]
+    );
+
+    return [
+      response.status,
+      (await response.json()) as TData,
+      this.config.validateStatus(response.status),
+    ];
   }
 }
