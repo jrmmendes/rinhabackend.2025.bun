@@ -28,9 +28,9 @@ RUN bun run build
 
 # copy production dependencies and source code into final image
 FROM base AS release
-COPY --from=prerelease /usr/src/app/dist/server .
+COPY --from=prerelease /usr/src/app/dist/server.js .
 
 # run the app
 USER bun
-EXPOSE 9999/tcp
-ENTRYPOINT ["./server"]
+EXPOSE 3000/tcp
+ENTRYPOINT ["bun", "run", "./server.js"]
